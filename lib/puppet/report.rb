@@ -13,8 +13,6 @@ module Puppet #:nodoc:
       def skipped_resources;  metric_value(:resources, :skipped_resources) || 0; end
       def changed_resources;  metric_value(:changes,   :total)             || 0; end
 
-      def total_time; metric_value(:time, :total); end
-
       def failed?;  failed_resources  > 0 end
       def changed?; changed_resources > 0 end
 
@@ -36,6 +34,10 @@ module Puppet #:nodoc:
         result
       end
 
+    end
+
+    class Event
+      attr_reader :property, :desired_value, :previous_value, :status
     end
   end
 
@@ -78,6 +80,10 @@ module ReportExtensions #:nodoc:
         obj.metrics.each{|_, metric| metric.extend Puppet25::Util::Metric} if obj.metrics.respond_to?(:each)
       end
 
+      def config_retrieval_time; metric_value(:time, :config_retrieval); end
+
+      def total_time; metric_value(:time, :total); end
+
       def version
         "0.25.x"
       end
@@ -103,6 +109,12 @@ module ReportExtensions #:nodoc:
       # Attributes in 2.6.x but not 0.25.x
       attr_reader :external_times, :resource_statuses
 
+      def config_retrieval_time; metric_value(:time, "config_retrieval"); end
+
+      def total_time
+        metric_value(:time).values.inject(0) {|sum,section| sum + section[2]}
+      end
+
       def changed_statuses
         resource_statuses.reject { |name, status| not status.changed }
       end
@@ -114,7 +126,7 @@ module ReportExtensions #:nodoc:
 
     module Resource
       module Status
-        attr_reader :source_description, :evaluation_time, :resource, :tags, :file, :events, :time, :line, :version, :changed
+        attr_reader :source_description, :evaluation_time, :resource, :tags, :file, :events, :time, :line, :version, :changed, :out_of_sync
       end
     end
 
@@ -125,5 +137,6 @@ module ReportExtensions #:nodoc:
       module Log
       end
     end
+
   end
 end

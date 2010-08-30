@@ -47,7 +47,7 @@ class Report < ActiveRecord::Base
   end
 
   def config_retrieval_time
-    if value = metric_value(:time, :config_retrieval)
+    if value = report.config_retrieval_time
       TOTAL_TIME_FORMAT % value
     end
   end

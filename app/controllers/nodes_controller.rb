@@ -1,5 +1,4 @@
 class NodesController < InheritedResources::Base
-  include PagedIndex
   belongs_to :node_class, :optional => true
   belongs_to :node_group, :optional => true
   respond_to :html, :yaml, :json
@@ -43,7 +42,7 @@ class NodesController < InheritedResources::Base
   # requirements
   def reports
     @node = Node.find_by_name!(params[:id])
-    @reports = @node.reports
+    @reports = request.format == :html ? @node.reports.paginate(:page => params[:page]) : @node.reports
     respond_to do |format|
       format.html { render 'reports/index' }
       format.yaml { render :text => @reports.to_yaml, :content_type => 'application/x-yaml' }

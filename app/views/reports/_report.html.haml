@@ -27,6 +27,28 @@
           - else
             %td.empty{:colspan => 4}
               = describe_no_matches_for 'log messages', :report
+  - if report.report.respond_to? :resource_statuses
+    .section
+      %h3 Resources
+      %table.inspector
+        %thead
+          %tr
+            %th Name
+            %th Property
+            %th Previous
+            %th Current
+        %tbody
+          - report.report.resource_statuses.each do |name,status|
+            - next if name =~ /^Schedule/ or name =~ /^Filebucket/
+            %tr
+              %td{:class => status.changed ? :changed : nil, :rowspan => status.events.count+1}
+                = status.resource
+            - status.events.each do |event|
+              %tr
+                %td= event.property
+                %td= event.previous_value
+                %td= event.desired_value
+
   .section
     %h3 Metrics
     - if report.metrics.present?

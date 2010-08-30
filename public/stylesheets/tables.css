@@ -70,6 +70,18 @@ table tbody td.status.failure {
   color: red;
 }
 
+table.resources tbody tr.status.success {
+  color: lightgreen;
+}
+
+table.resources tbody tr.status.failure {
+  color: pink;
+}
+
+table.resources tbody tr.status.changed {
+  color: #FF9;
+}
+
 table.inspector td.key,
 table.inspector td.value {
   vertical-align: top;
