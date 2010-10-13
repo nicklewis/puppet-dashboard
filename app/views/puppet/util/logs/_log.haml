@@ -2,7 +2,7 @@
   %td.level
     %code= h log.level
   %td
-    %code= h log.message
+    %code= (h log.message).gsub("\n","<br />")
   %td.wrap
     %code= h log.source
   %td.nowrap
