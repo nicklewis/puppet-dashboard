@@ -456,8 +456,8 @@ describe NodesController do
         SETTINGS.stubs(:no_longer_reporting_cutoff).returns(60)
         @node = Node.generate!(:name => "foo")
         @hidden_node = Node.generate!(:name => "bar", :hidden => true)
-        Report.generate_for(@node, 1.hour.ago)
-        Report.generate_for(@hidden_node, 1.hour.ago)
+        Report.create!(:time => 1.hour.ago, :host => @node.name)
+        Report.create!(:time => 1.hour.ago, :host => @hidden_node.name)
       end
 
       let(:action) { "no_longer_reporting" }

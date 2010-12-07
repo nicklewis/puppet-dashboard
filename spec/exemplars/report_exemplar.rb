@@ -1,5 +1,4 @@
 class Report
-  generator_for :report do
-    YAML.load_file("#{RAILS_ROOT}/spec/fixtures/sample_report.yml")
-  end
+  generator_for :host, :start => "Report_host.001"
+  generator_for :time, Time.now
 end
