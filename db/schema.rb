@@ -15,10 +15,6 @@ ActiveRecord::Schema.define(:version => 20101206225510) do
     t.datetime "time"
   end
 
-  create_table "Times", :id => false, :force => true do |t|
-    t.datetime "time"
-  end
-
   create_table "assignments", :force => true do |t|
     t.integer  "node_id"
     t.integer  "service_id"
@@ -27,12 +23,10 @@ ActiveRecord::Schema.define(:version => 20101206225510) do
   end
 
   create_table "metrics", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "report_id",                                 :null => false
-    t.string   "category"
-    t.string   "name"
-    t.decimal  "value",      :precision => 12, :scale => 6
+    t.integer "report_id",                                :null => false
+    t.string  "category"
+    t.string  "name"
+    t.decimal "value",     :precision => 12, :scale => 6
   end
 
   add_index "metrics", ["report_id"], :name => "index_metrics_on_report_id"
@@ -99,9 +93,7 @@ ActiveRecord::Schema.define(:version => 20101206225510) do
   end
 
   create_table "report_logs", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "report_id",  :null => false
+    t.integer  "report_id", :null => false
     t.string   "level"
     t.string   "message"
     t.string   "source"
@@ -115,8 +107,6 @@ ActiveRecord::Schema.define(:version => 20101206225510) do
 
   create_table "reports", :force => true do |t|
     t.integer  "node_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.string   "host"
     t.datetime "time"
     t.string   "status"
@@ -129,8 +119,6 @@ ActiveRecord::Schema.define(:version => 20101206225510) do
   add_index "reports", ["time", "node_id", "status"], :name => "index_reports_on_time_and_node_id_and_status"
 
   create_table "resource_events", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.integer  "resource_status_id", :null => false
     t.string   "previous_value"
     t.string   "desired_value"
@@ -146,8 +134,6 @@ ActiveRecord::Schema.define(:version => 20101206225510) do
   add_index "resource_events", ["resource_status_id"], :name => "index_resource_events_on_resource_status_id"
 
   create_table "resource_statuses", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.integer  "report_id",                                         :null => false
     t.string   "resource_type"
     t.string   "title"

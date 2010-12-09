@@ -3,4 +3,8 @@ class ResourceStatus < ActiveRecord::Base
   has_many :events, :class_name => "ResourceEvent"
 
   serialize :tags, Array
+
+  def name
+    "#{resource_type}[#{title}]"
+  end
 end

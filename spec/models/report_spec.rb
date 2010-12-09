@@ -129,8 +129,8 @@ describe Report do
   end
 
   describe "when diffing inspection reports" do
-    before :each do
-      @report_yaml = <<-'HEREDOC'
+    def generate_report(time, file_ensure, file_content)
+      Report.create_from_yaml <<-HEREDOC
 --- !ruby/object:Puppet::Transaction::Report
   host: mattmac.puppetlabs.lan
   kind: inspect
@@ -143,8 +143,8 @@ describe Report do
           default_log_level: !ruby/sym notice
           file: &id001 /Users/matthewrobinson/work/puppet/test_data/genreportm/manifests/site.pp
           line: 5
-          message: inspected value is :file
-          previous_value: !ruby/sym file
+          message: inspected value is :#{file_ensure}
+          previous_value: !ruby/sym #{file_ensure}
           property: ensure
           resource: "File[/tmp/foo]"
           status: audit
@@ -157,8 +157,8 @@ describe Report do
           default_log_level: !ruby/sym notice
           file: *id001
           line: 5
-          message: "inspected value is \"{md5}foo\""
-          previous_value: "{md5}foo"
+          message: "inspected value is \\"{md5}#{file_content}\\""
+          previous_value: "{md5}#{file_content}"
           property: content
           resource: "File[/tmp/foo]"
           status: audit
@@ -180,69 +180,19 @@ describe Report do
             - *id003
           time: 2010-12-03 12:08:59.061413 -08:00
           version: 1291406846
-HEREDOC
-      @report_yaml2 = <<-'HEREDOC'
---- !ruby/object:Puppet::Transaction::Report
-  host: mattmac.puppetlabs.lan
-  kind: inspect
-  logs: []
-  metrics: {}
-  resource_statuses: 
-    "File[/tmp/foo]": !ruby/object:Puppet::Resource::Status
-      events: 
-        - !ruby/object:Puppet::Transaction::Event
-          default_log_level: !ruby/sym notice
-          file: &id001 /Users/matthewrobinson/work/puppet/test_data/genreportm/manifests/site.pp
-          line: 5
-          message: inspected value is :directory
-          previous_value: !ruby/sym directory
-          property: ensure
-          resource: "File[/tmp/foo]"
-          status: audit
-          tags: 
-            - &id002 file
-            - &id003 class
-          time: 2010-12-03 12:18:40.039434 -08:00
-          version: 1291407517
-        - !ruby/object:Puppet::Transaction::Event
-          default_log_level: !ruby/sym notice
-          file: *id001
-          line: 5
-          message: "inspected value is \"{md5}bar\""
-          previous_value: "{md5}bar"
-          property: content
-          resource: "File[/tmp/foo]"
-          status: audit
-          tags: 
-            - *id002
-            - *id003
-          time: 2010-12-03 12:08:59.061376 -08:00
-          version: 1291406846
-        - !ruby/object:Puppet::Transaction::Event
-          default_log_level: !ruby/sym notice
-          file: *id001
-          line: 5
-          message: inspected value is nil
-          property: target
-          resource: "File[/tmp/foo]"
-          status: audit
-          tags: 
-            - *id002
-            - *id003
-          time: 2010-12-03 12:08:59.061413 -08:00
-          version: 1291406846
+  time: #{time}
 HEREDOC
     end
 
     it "should produce an empty diff for the same report twice" do
-      report1 = Report.create(:report => @report_yaml)
-      report2 = Report.create(:report => @report_yaml)
+      report1 = generate_report(Time.now, "file", "foo")
+      report2 = generate_report(1.week.ago, "file", "foo")
       report1.diff(report2).should == {}
     end
 
     it "should show diff for the different reports" do
-      report1 = Report.create(:report => @report_yaml)
-      report2 = Report.create(:report => @report_yaml2)
+      report1 = generate_report(Time.now, "file", "foo")
+      report2 = generate_report(1.week.ago, "directory", "bar")
       report1.diff(report2).should == {
         'File[/tmp/foo]' => {
           :ensure => [:file, :directory],
@@ -267,7 +217,7 @@ HEREDOC
         ['time',      'filebucket'       ,  '0.00'],
         ['time',      'service'          ,  '1.56'],
         ['time',      'exec'             ,  '0.10'],
-        ['time',      'total_time'       ,  '1.82'],
+        ['time',      'total'       ,  '1.82'],
         ['resources', 'total'            ,  '9.00'],
         ['resources', 'changed'          ,  '2.00'],
         ['resources', 'out_of_sync'      ,  '2.00'],

@@ -11,7 +11,6 @@ class Report < ActiveRecord::Base
   validates_presence_of :host
   validates_presence_of :time
   validates_uniqueness_of :host, :scope => :time, :allow_nil => true
-  after_save :update_node
   after_destroy :replace_last_report
 
   default_scope :order => 'time DESC'
@@ -20,41 +19,57 @@ class Report < ActiveRecord::Base
     self.first(:conditions => {:node_id => node.id}, :order => 'time DESC', :limit => 1)
   end
 
+  def total_resources
+    metric_value("resources", "total")
+  end
+
+  def failed_resources
+    metric_value("resources", "failed")
+  end
+
+  def failed_restarts
+    metric_value("resources", "failed_restarts")
+  end
+
+  def skipped_resources
+    metric_value("resources", "skipped_resources")
+  end
+
+  def changed_resources
+    metric_value("changes", "total")
+  end
+
   def failed_resources?
-    failed_resources = metrics.find_by_category_and_name("resources", "failed")
-    if failed_resources
-      failed_resources.value > 0
-    else
-      metrics.empty?
-    end
+    failed_resources > 0 or metrics.empty?
   end
 
   def changed_resources?
-    changed_resources = metrics.find_by_category_and_name("changes", "total")
-    changed_resources and changed_resources.value > 0
+    changed_resources > 0
   end
 
   TOTAL_TIME_FORMAT = "%0.2f"
 
   def total_time
-    if value = report.total_time
-      TOTAL_TIME_FORMAT % value
-    end
+    TOTAL_TIME_FORMAT % metric_value("time", "total_time")
   end
 
   def config_retrieval_time
-    if value = metric_value(:time, :config_retrieval)
-      TOTAL_TIME_FORMAT % value
-    else
-      TOTAL_TIME_FORMAT % 0
-    end
+    TOTAL_TIME_FORMAT % metric_value("time", "config_retrieval")
+  end
+
+  def metric_value(category, name)
+    metric = metrics.find_by_category_and_name(category, name)
+    (metric and metric.value) or 0
   end
 
   def diff(comparison_report)
     diff_stuff = {}
-    comparison_report.report.resource_statuses.each do |name, value|
-      my_properties = events_to_hash( self.report.resource_statuses[name].events )
-      their_properties = events_to_hash( value.events )
+    comparison_report.resource_statuses.each do |resource_status|
+      resource_type = resource_status.resource_type
+      title = resource_status.title
+      name = "#{resource_type}[#{title}]"
+      my_properties = events_to_hash( self.resource_statuses.find_by_resource_type_and_title(resource_type, title).events )
+      their_properties = events_to_hash( resource_status.events )
       my_properties.keys.each do |property|
         if my_properties[property] != their_properties[property]
           diff_stuff[name] ||= {}
@@ -87,7 +102,7 @@ class Report < ActiveRecord::Base
     total_time = nil
     raw_report.metrics.each do |metric_category, metrics|
       metrics.values.each do |name, _, value|
-        total_time = value if metric_category.to_s == "time" and name.to_s == "total_time"
+        total_time = value if metric_category.to_s == "time" and name.to_s == "total"
         report.metrics.create!(
           :category  => metric_category.to_s,
           :name      => name.to_s,
@@ -101,7 +116,7 @@ class Report < ActiveRecord::Base
         total_time = time_metrics.values.sum(&:last) 
         report.metrics.create!(
           :category => "time",
-          :name     => "total_time",
+          :name     => "total",
           :value    => total_time
         )
       end
@@ -151,6 +166,7 @@ class Report < ActiveRecord::Base
 
     report.status = report.failed_resources? ? 'failed' : report.changed_resources? ? 'changed' : 'unchanged'
     report.save!
+    report.update_node
     report
   end
 

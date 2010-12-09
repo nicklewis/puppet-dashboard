@@ -95,7 +95,7 @@ class SchematizeReports < ActiveRecord::Migration
         ActiveRecord::Base.connection.insert("INSERT INTO report_logs
                                               (report_id, level, message, source, tags, time, file, line)
                                               VALUES 
-                                              (#{report.id}, '#{log.level}', '#{log.message and log.message.gsub("'","''")}', '#{log.source}', '#{log.tags.to_yaml.gsub("'","''")}', '#{log.time}', '#{log.file}', '#{log.line}')")
+                                              (#{report.id}, '#{log.level}', '#{log.message and log.message.gsub("'","''")}', '#{log.source}', '#{log.tags.to_yaml.gsub("'","''")}', '#{log.time.to_s(:db)}', '#{log.file}', '#{log.line}')")
         #ReportLog.create!(
         #  :report_id => report.id,
         #  :level => log.level,
@@ -114,7 +114,7 @@ class SchematizeReports < ActiveRecord::Migration
         resource_status_id = ActiveRecord::Base.connection.insert("INSERT INTO resource_statuses
                                                                    (report_id, resource_type, title, evaluation_time, file, line, source_description, tags, time, change_count, out_of_sync)
                                                                    VALUES
-                                                                   (#{report.id}, '#{resource_type}', '#{title}', '#{status.evaluation_time}', '#{status.file}', '#{status.line}', '#{status.source_description}', '#{status.tags.to_yaml.gsub("'","''")}', '#{status.time}', '#{status.change_count}', '#{status.out_of_sync}')")
+                                                                   (#{report.id}, '#{resource_type}', '#{title}', '#{status.evaluation_time}', '#{status.file}', '#{status.line}', '#{status.source_description}', '#{status.tags.to_yaml.gsub("'","''")}', '#{status.time.to_s(:db)}', '#{status.change_count}', '#{status.out_of_sync}')")
         #ResourceStatus.create!(
         #  :report_id => report.id,
         #  :resource_type => resource_type,
@@ -133,7 +133,7 @@ class SchematizeReports < ActiveRecord::Migration
           ActiveRecord::Base.connection.insert("INSERT INTO resource_events
                                                 (resource_status_id, previous_value, desired_value, message, name, property, source_description, status, tags, time)
                                                 VALUES
-                                                (#{resource_status_id}, '#{event.previous_value}', '#{event.desired_value}', '#{event.message and event.message.gsub("'","''")}', '#{event.name}', '#{event.property}', '#{event.source_description}', '#{event.status}', '#{event.tags.to_yaml.gsub("'","''")}', '#{event.time}')")
+                                                (#{resource_status_id}, '#{event.previous_value}', '#{event.desired_value}', '#{event.message and event.message.gsub("'","''")}', '#{event.name}', '#{event.property}', '#{event.source_description}', '#{event.status}', '#{event.tags.to_yaml.gsub("'","''")}', '#{event.time.to_s(:db)}')")
 
           #ResourceEvent.create!(
           #  :resource_status_id => resource_status_id,
@@ -154,7 +154,7 @@ class SchematizeReports < ActiveRecord::Migration
 
       raw_report.metrics.each do |metric_category, metrics|
         metrics.values.each do |name, _, value|
-          total_time = value if name == "total_time"
+          total_time = value if metric_category.to_s == "time" and name.to_s == "total"
           ActiveRecord::Base.connection.insert("INSERT INTO metrics
                                                 (report_id, category, name, value)
                                                 VALUES
@@ -176,7 +176,7 @@ class SchematizeReports < ActiveRecord::Migration
           ActiveRecord::Base.connection.insert("INSERT INTO metrics
                                                 (report_id, category, name, value)
                                                 VALUES
-                                                (#{report.id}, 'time', 'total_time', '#{total_time}')")
+                                                (#{report.id}, 'time', 'total', '#{total_time}')")
         end
       end
 
