@@ -1,20 +1,42 @@
-.header
-  %h2
-    = render 'report_title', :report => @my_report
-    compared against 
-    = render 'report_title', :report => @baseline_report
-%table.inspector
-  %thead
-    %tr
-      %th Resource
-      %th Status
-  %tbody
-    - @resources.each do |resource, status|
-      %tr{:class => "status #{status}"}
-        %td
-          - if status == :failure
+#sidebar= render 'shared/node_manager_sidebar'
+#main
+  .header
+    %h2
+      = render 'report_title', :report => @my_report
+      compared against
+      = render 'report_title', :report => @baseline_report
+  .item
+    %h3= "There were #{ @resource_statuses[:failure].length } failures and #{ @resource_statuses[:pass].length } successes."
+    - if @resource_statuses[:failure].present?
+      %h4
+        Failures
+        %a{ :href => '#', :class => 'expand-all' } (expand all)
+      %dl#baseline-diff-report
+        - @resource_statuses[:failure].each do |resource|
+          %dt{:class => cycle( 'odd', 'even' )}
             = link_to h(resource), :id => @my_report, :action => "diff", :baseline_id => @baseline_report, :anchor => h(resource)
-          - else
-            = h(resource)
-        %td= h status
-= link_to "Details", :id => @my_report, :action => "diff", :baseline_id => @baseline_report
+          %dd.expandable
+            %table
+              %tr
+                %th Property
+                %th Expected
+                %th Actual
+              - @diff[ resource ].each do |property, expected_actual|
+                %tr
+                  - expected, actual = expected_actual
+                  %td= h property
+                  %td= h expected
+                  %td= h actual
+    - if @resource_statuses[:pass].present?
+      %h4 Successes
+      %ul
+      - @resource_statuses[:pass].each do |resource|
+        %li{:class => cycle( 'odd', 'even' )}
+          = h(resource)
+
+
+
+    %h4 TODO
+    %ul
+      %li icons/indicators for expand/collapse
+      %li bring better in-line with house style

@@ -102,5 +102,34 @@ jQuery(document).ready(function(J) {
 
     J(this).hide();
   });
-
+  init_baseline_diff_report();
 });
+
+function init_baseline_diff_report() {
+  jQuery( '.expand-all' ).live( 'click', function() {
+    jQuery( this )
+      .removeClass( 'expand-all' )
+      .addClass( 'collapse-all' )
+      .text( jQuery( this ).text().replace( 'Expand', 'Collapse' ));
+    jQuery( '.expandable' )
+      .removeClass( 'expandable' )
+      .addClass( 'collapsable' )
+      .show();
+    return false;
+  });
+  jQuery( '.collapse-all' ).live( 'click', function() {
+    jQuery( this )
+      .removeClass( 'collapse-all' )
+      .addClass( 'expand-all' )
+      .text( jQuery( this ).text().replace( 'Collapse', 'Expand' ));
+    jQuery( '.collapsable' ).hide();
+    return false;
+  });
+  jQuery( '#baseline-diff-report a' ).click( function() {
+    jQuery( this ).parent().next( '.expandable' )
+      .removeClass( 'expandable' )
+      .addClass( 'collapsable' )
+      .show();
+    return false;
+  });
+}
