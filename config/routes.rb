@@ -24,13 +24,14 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :reports,
     :member => {
-      :diff => :get,
       :make_baseline => :put,
     },
     :collection => {
       :search => :get,
       :baselines => :get,
     }
+
+  map.diffs "reports/:id/diff", {:controller=>"diffs", :action=>"diff"}
 
   map.upload "reports/upload", :controller => :reports, :action => "upload", :conditions => { :method => :post }
 

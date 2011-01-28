@@ -1,5 +1,5 @@
 %h3= "Compare with:"
-- form_tag({:id => diffee, :action => "diff"}, :id => "baseline_compare", :method => :get) do
+- form_tag({:id => diffee, :action => "diff", :controller => "diffs"}, :id => "baseline_compare", :method => :get) do
   %p
     = radio_button_tag "baseline_type", "self", true
     = label_tag "baseline_type_self", "individual baseline", :class => "inline"
