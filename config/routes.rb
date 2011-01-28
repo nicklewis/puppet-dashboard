@@ -31,8 +31,6 @@ ActionController::Routing::Routes.draw do |map|
       :baselines => :get,
     }
 
-  map.diffs "reports/:id/diff", {:controller=>"diffs", :action=>"diff"}
-
   map.upload "reports/upload", :controller => :reports, :action => "upload", :conditions => { :method => :post }
 
   map.release_notes '/release_notes', :controller => :pages, :action => :release_notes
