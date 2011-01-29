@@ -20,3 +20,8 @@ Registry.add_hook :report, :actions, "500_make_baseline" do |view_renderer, repo
     "<li>#{link}</li>"
   end
 end
+Registry.add_hook :report, :status_icon, "500_baseline" do |report|
+  if report.baseline?
+    :baseline
+  end
+end

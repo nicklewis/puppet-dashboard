@@ -19,4 +19,13 @@ module Registry
     end
     @registry[feature_name][hook_name][callback_name] = value
   end
+
+  def self.find_first_hook(feature_name, hook_name)
+    self.each_hook(feature_name, hook_name) do |thing|
+      if result = yield(thing)
+        return result
+      end
+    end
+    nil
+  end
 end
