@@ -1,0 +1,2 @@
+module PuppetBaseline
+end
