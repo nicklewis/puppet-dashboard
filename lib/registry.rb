@@ -12,7 +12,11 @@ module Registry
     end
   end
 
-  def self.add_hook( feature_name, hook_name, callback_name, value )
+  def self.add_hook( feature_name, hook_name, callback_name, value = nil, &block )
+    if block
+      raise "Cannot pass both a value and a block to add_hook" if value
+      value = block
+    end
     @registry[feature_name][hook_name][callback_name] = value
   end
 end
