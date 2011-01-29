@@ -22,7 +22,7 @@
       %a{ :href => '#', :class => ['expand-all', 'button'] } expand all
       %br
       - @nodes_with_differences.each do |diff_information|
-        = render 'reports/diff',                                        |
+        = render 'diff',                                                |
           :baseline_report   => diff_information[:baseline_report],     |
           :my_report         => diff_information[:last_inspect_report], |
           :resource_statuses => diff_information[:resource_statuses],   |

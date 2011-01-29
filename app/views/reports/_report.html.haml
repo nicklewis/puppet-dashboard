@@ -10,7 +10,7 @@
 .item
   - if report.kind == "inspect" and Report.baselines.any?
     .section
-      = render 'baseline_selector', :diffee => report
+      = render 'baseline_selector', :diffee => report, :action => "diff"
   - if report.resource_statuses.present?
     .section
       %h3
