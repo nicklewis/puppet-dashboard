@@ -10,4 +10,4 @@
     = link_to_function('Compare', "jQuery('#baseline_compare').submit()", :class => "button")
 = javascript_include_tag 'baseline_selector'
 %script{:type => 'text/javascript'}
-  setup_baseline_selector('#baseline_host', '#{baselines_reports_path :limit => 20, :format => :json}');
+  setup_baseline_selector('#baseline_host', '#{baselines_path :limit => 20, :format => :json}');
