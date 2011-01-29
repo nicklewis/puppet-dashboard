@@ -23,9 +23,6 @@ ActionController::Routing::Routes.draw do |map|
     :requirements => {:id => /[^\/]+/}
 
   map.resources :reports,
-    :member => {
-      :make_baseline => :put,
-    },
     :collection => {
       :search => :get,
       :baselines => :get,

@@ -37,12 +37,6 @@ class ReportsController < InheritedResources::Base
     end
   end
 
-  def make_baseline
-    report = Report.find( params[:id] )
-    report.baseline!
-    redirect_to report
-  end
-
   def search
     flash[:errors] = []
     inspected_resources = ResourceStatus.latest_inspections.order("nodes.name")

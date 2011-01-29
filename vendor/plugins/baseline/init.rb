@@ -16,7 +16,7 @@ Registry.add_hook :core, :node_view_widgets, "500_baseline" do |view_renderer, n
 end
 Registry.add_hook :report, :actions, "500_make_baseline" do |view_renderer, report|
   if report.kind == "inspect" and ! report.baseline?
-    link = view_renderer.link_to "Make Baseline", {:id => report, :action => "make_baseline"}, :method => :put, :confirm => 'Are you sure?', :class => "button"
+    link = view_renderer.link_to "Make Baseline", {:id => report, :action => "make_baseline", :controller => "baselines"}, :method => :put, :confirm => 'Are you sure?', :class => "button"
     "<li>#{link}</li>"
   end
 end
