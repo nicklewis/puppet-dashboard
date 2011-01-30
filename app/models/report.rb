@@ -134,14 +134,6 @@ class Report < ActiveRecord::Base
     "#{node.name} at #{time}"
   end
 
-  def baseline?
-    Baseline.report_is_baseline? self
-  end
-
-  def baseline!
-    Baseline.report_make_baseline! self
-  end
-
   private
 
   def resources_to_hash(resources)

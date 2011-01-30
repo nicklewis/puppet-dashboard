@@ -1,7 +1,7 @@
 class BaselinesController < ApplicationController
   def make_baseline
     report = Report.find( params[:id] )
-    report.baseline!
+    Baseline.report_make_baseline!(report)
     redirect_to report
   end
 

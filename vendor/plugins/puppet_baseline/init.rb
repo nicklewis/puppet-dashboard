@@ -13,13 +13,13 @@ Registry.add_hook :core, :node_view_widgets, "500_baseline" do |view_renderer, n
   end
 end
 Registry.add_hook :report, :actions, "500_make_baseline" do |view_renderer, report|
-  if report.kind == "inspect" and ! report.baseline?
+  if report.kind == "inspect" and ! Baseline.report_is_baseline?(report)
     link = view_renderer.link_to "Make Baseline", {:id => report, :action => "make_baseline", :controller => "baselines"}, :method => :put, :confirm => 'Are you sure?', :class => "button"
     "<li>#{link}</li>"
   end
 end
 Registry.add_hook :report, :status_icon, "500_baseline" do |report|
-  if report.baseline?
+  if Baseline.report_is_baseline?(report)
     :baseline
   end
 end
