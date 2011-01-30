@@ -2,10 +2,11 @@ class DiffsController < ApplicationController
   def diff
     @my_report = Report.find(params[:id])
     if params[:baseline_type] == "self"
-      @baseline_report = @my_report.node.baseline_report
-      raise ActiveRecord::RecordNotFound.new "Node #{@my_report.node.name} does not have a baseline report set" unless @baseline_report
+      baseline = Baseline.find_by_node(@my_report.node)
+      raise ActiveRecord::RecordNotFound.new "Node #{@my_report.node.name} does not have a baseline report set" unless baseline
+      @baseline_report = baseline.report
     else
-      baseline = Baseline.first(:joins => :node, :conditions => ["nodes.name = ?", params[:baseline_host]])
+      baseline = Baseline.find_by_node_name(params[:baseline_host])
       raise ActiveRecord::RecordNotFound.new("No baseline report for node #{params[:baseline_host]}") unless baseline
       @baseline_report = baseline.report
     end
@@ -17,8 +18,9 @@ class DiffsController < ApplicationController
   def diff_group
     @node_group = NodeGroup.find(params[:id])
     unless params[:baseline_type] == "self"
-      @baseline = Node.find_by_name!(params[:baseline_host]).baseline_report
-      raise ActiveRecord::RecordNotFound.new("Node #{params[:baseline_host]} does not have a baseline report set") unless @baseline
+      baseline = Baseline.find_by_node_name(params[:baseline_host])
+      raise ActiveRecord::RecordNotFound.new("No baseline report for node #{params[:baseline_host]}") unless baseline
+      @baseline = baseline.report
     end
 
     @nodes_without_latest_inspect_reports = []
@@ -26,7 +28,7 @@ class DiffsController < ApplicationController
     @nodes_without_differences = []
     @nodes_with_differences = []
     @node_group.all_nodes.sort_by(&:name).each do |node|
-      baseline = @baseline || node.baseline_report
+      baseline = @baseline || Baseline.find_by_node(node).report # TODO: what if the node doesn't have a baseline set?
       @nodes_without_latest_inspect_reports << node and next unless node.last_inspect_report
       @nodes_without_baselines << node and next unless baseline
 

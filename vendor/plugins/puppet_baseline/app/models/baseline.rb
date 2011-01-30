@@ -14,4 +14,12 @@ class Baseline < ActiveRecord::Base
     baseline.report_id = report.id
     baseline.save!
   end
+
+  def self.find_by_node(node)
+    self.find_by_node_id(node.id)
+  end
+
+  def self.find_by_node_name(name)
+    self.first(:joins => :node, :conditions => ["nodes.name = ?", name])
+  end
 end
