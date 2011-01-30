@@ -19,7 +19,6 @@ class Report < ActiveRecord::Base
 
   named_scope :inspections, :conditions => {:kind => "inspect"}, :include => :metrics
   named_scope :applies,     :conditions => {:kind => "apply"  }, :include => :metrics
-  named_scope :baselines,   :include => :node, :conditions => ['nodes.baseline_report_id = reports.id']
 
   def total_resources
     metric_value("resources", "total")
@@ -136,13 +135,11 @@ class Report < ActiveRecord::Base
   end
 
   def baseline?
-    self.node.baseline_report_id == self.id
+    Baseline.report_is_baseline? self
   end
 
   def baseline!
-    raise IncorrectReportKind.new("expected 'inspect', got '#{self.kind}'") unless self.kind == "inspect"
-    self.node.baseline_report = self
-    self.node.save!
+    Baseline.report_make_baseline! self
   end
 
   private

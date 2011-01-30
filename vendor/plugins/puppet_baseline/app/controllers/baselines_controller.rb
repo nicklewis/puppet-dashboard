@@ -9,9 +9,9 @@ class BaselinesController < ApplicationController
     if request.format == :json
       limit = params[:limit].to_i
       search_term = params[:term].gsub(/([\\%_])/, "\\\\\\1")
-      prefix_matches = Report.baselines.where(["host LIKE ?", "#{search_term}%"]).order("host ASC").limit(limit).map(&:host)
-      substring_matches = Report.baselines.where(["host LIKE ?", "%#{search_term}%"]).order("host ASC").limit(limit).map(&:host)
-      matches = (prefix_matches + substring_matches).uniq[0,limit]
+      matches = ["#{search_term}%", "%#{search_term}%"].map do |pattern|
+        Baseline.all(:include => :node, :conditions => ["nodes.name LIKE ?", pattern], :order => "nodes.name ASC", :limit => limit).map(&:node).map(&:name)
+      end.sum.uniq[0,limit]
       render :text => matches.to_json, :content_type => 'application/json'
     else
       render :status => 406
