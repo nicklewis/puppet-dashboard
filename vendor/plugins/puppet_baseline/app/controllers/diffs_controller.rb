@@ -5,7 +5,9 @@ class DiffsController < ApplicationController
       @baseline_report = @my_report.node.baseline_report
       raise ActiveRecord::RecordNotFound.new "Node #{@my_report.node.name} does not have a baseline report set" unless @baseline_report
     else
-      @baseline_report = Report.baselines.find_by_host!(params[:baseline_host])
+      baseline = Baseline.first(:joins => :node, :conditions => ["nodes.name = ?", params[:baseline_host]])
+      raise ActiveRecord::RecordNotFound.new("No baseline report for node #{params[:baseline_host]}") unless baseline
+      @baseline_report = baseline.report
     end
 
     @diff = @baseline_report.diff(@my_report)
