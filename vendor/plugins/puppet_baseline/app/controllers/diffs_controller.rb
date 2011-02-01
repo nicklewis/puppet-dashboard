@@ -28,7 +28,11 @@ class DiffsController < ApplicationController
     @nodes_without_differences = []
     @nodes_with_differences = []
     @node_group.all_nodes.sort_by(&:name).each do |node|
-      baseline = @baseline || Baseline.find_by_node(node).report # TODO: what if the node doesn't have a baseline set?
+      baseline = @baseline
+      if not baseline
+        baseline_association = Baseline.find_by_node(node)
+        baseline = baseline_association.report if baseline_association
+      end
       @nodes_without_latest_inspect_reports << node and next unless node.last_inspect_report
       @nodes_without_baselines << node and next unless baseline
 

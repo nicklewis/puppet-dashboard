@@ -1,6 +1,6 @@
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
-describe "/node_groups/diff.html.haml" do
+describe "/diffs/diff_group.html.haml" do
   describe "successful render" do
     before :each do
       assigns[:node_group] = node_group = NodeGroup.generate!

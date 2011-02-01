@@ -5,7 +5,7 @@ class Baseline < ActiveRecord::Base
 
   def self.report_is_baseline?(report)
     node_baseline = Baseline.find_by_node_id(report.node_id)
-    node_baseline && node_baseline.report_id == report.id
+    !!(node_baseline && node_baseline.report_id == report.id)
   end
 
   def self.report_make_baseline!(report)

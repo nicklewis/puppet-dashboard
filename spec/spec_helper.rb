@@ -10,7 +10,8 @@ require 'spec/rails'
 require 'shoulda'
 require 'factory_girl'
 require 'factory_girl/syntax/generate'
-require 'spec/factories'
+
+Dir["#{File.dirname(__FILE__)}/factories/*.rb"].each {|f| require f}
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.

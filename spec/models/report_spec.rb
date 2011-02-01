@@ -242,48 +242,6 @@ HEREDOC
         Report.inspections.should == [@report]
       end
     end
-
-    describe "baseline!" do
-      before do
-        @report  = generate_report(Time.now, "file", "foo")
-        @report2 = generate_report(1.week.ago, "absent", nil)
-      end
-
-      it "should set baseline?" do
-        @report.baseline!
-
-        @report.reload
-        @report.should be_baseline
-
-        Report.baselines.should == [@report]
-      end
-
-      it "should unset other reports' baseline?" do
-        @report.should_not be_baseline
-        @report2.should_not be_baseline
-
-        @report.baseline!
-        @report.reload
-        @report.should be_baseline
-        @report2.should_not be_baseline
-
-        @report2.baseline!
-        @report2.should be_baseline
-
-        @report.reload
-        @report.should_not be_baseline
-
-        Report.baselines.should == [@report2]
-      end
-
-      it "should not make non-inspection reports baselines" do
-        @apply_report = Report.generate!(:kind => "apply")
-        lambda { @apply_report.baseline! }.should raise_error(IncorrectReportKind)
-
-        @apply_report.should_not be_baseline
-      end
-    end
-
   end
 
   describe "#create_from_yaml" do
