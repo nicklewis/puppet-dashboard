@@ -1,9 +1,13 @@
 require File.expand_path(File.join(File.dirname(__FILE__), *%w[.. spec_helper]))
 
 describe ReportTransformer do
+  let :fixture_dir do
+    Rails.root.join('spec','fixtures','reports')
+  end
+
   describe "when given a version 0 report" do
     before do
-      report_object = YAML.load_file(Rails.root.join('spec', 'fixtures', 'reports', 'puppet25', '1_changed_0_failures.yml'))
+      report_object = YAML.load_file(File.join(fixture_dir, 'puppet25', '1_changed_0_failures.yml'))
       report_object.extend(ReportExtensions)
       @report = report_object.to_hash
     end
@@ -17,7 +21,7 @@ describe ReportTransformer do
 
   describe "when given a version 1 report" do
     before do
-      report_object = YAML.load_file(Rails.root.join('spec', 'fixtures', 'reports', 'puppet26', 'report_ok_service_started_ok.yaml'))
+      report_object = YAML.load_file(File.join(fixture_dir, 'puppet26', 'report_ok_service_started_ok.yaml'))
       report_object.extend(ReportExtensions)
       @report = report_object.to_hash
     end
@@ -57,7 +61,7 @@ describe ReportTransformer do
 
   describe "when converting from version 1 to version 2" do
     before do
-      report_object = YAML.load_file(Rails.root.join('spec', 'fixtures', 'reports', 'puppet26', 'report_ok_service_started_ok.yaml'))
+      report_object = YAML.load_file(File.join(fixture_dir, 'puppet26', 'report_ok_service_started_ok.yaml'))
       report_object.extend(ReportExtensions)
       @report = report_object.to_hash
     end
@@ -232,6 +236,48 @@ describe ReportTransformer do
       report["resource_statuses"].each do |key, resource_status|
         resource_status["failed"].should == expected_failure_states[key]
       end
+    end
+  end
+
+  describe "when converting from version 2 to version 3" do
+    before :each do
+      report_object = YAML.load_file(File.join(fixture_dir, 'version2', 'example.yaml'))
+      report_object.extend(ReportExtensions)
+      @report = report_object.to_hash
+    end
+
+    it "should populate the 'pending_count' field" do
+      report = ReportTransformer::TwoToThree.apply(@report)
+
+      report["resource_statuses"]["File[/tmp/noop]"]["pending_count"].should == 1
+      report["pending_count"].should == 1
+    end
+
+    it "should not count failed resources in the pending_count of report" do
+      @report["resource_statuses"]["File[/tmp/noop]"]["failed"] = true
+      report = ReportTransformer::TwoToThree.apply(@report)
+
+      report["resource_statuses"]["File[/tmp/noop]"]["pending_count"].should == 1
+      report["pending_count"].should == 0
+    end
+
+    it "should populate the 'compliant_count' field" do
+      report = ReportTransformer::TwoToThree.apply(@report)
+
+      report["compliant_count"].should == 10
+    end
+
+    it "should not count failed or pending resources in the compliant_count" do
+      @report["resource_statuses"]["File[/tmp/unchanged]"]["failed"] = true
+      report = ReportTransformer::TwoToThree.apply(@report)
+
+      report["compliant_count"].should == 9
+    end
+
+    it "should populate the 'failed_count' field" do
+      report = ReportTransformer::TwoToThree.apply(@report)
+
+      report["failed_count"].should == 1
     end
   end
 end

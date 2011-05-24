@@ -110,6 +110,8 @@ end
 module ReportExtensions #:nodoc:
   def self.extended(obj)
     case
+    when obj.instance_variables.include?('@pending_count')
+      obj.extend ReportFormat3::Report
     when obj.instance_variables.include?('@report_format')
       obj.extend ReportFormat2::Report
     when obj.instance_variables.include?("@resource_statuses")
@@ -242,6 +244,34 @@ module ReportExtensions #:nodoc:
           hash["audited"] = audited
           hash["historical_value"] = historical_value
           hash
+        end
+      end
+    end
+  end
+
+  module ReportFormat3
+    module Report
+      attr_reader :pending_count
+
+      def self.extended(obj)
+        obj.resource_statuses.each do |_, status|
+          status.extend(ReportFormat3::Resource::Status)
+        end
+      end
+
+      def to_hash
+        hash = super
+        hash["pending_count"] = pending_count
+      end
+    end
+
+    module Resource
+      module Status
+        attr_reader :pending_count
+
+        def to_hash
+          hash = super
+          hash["pending_count"] = pending_count
         end
       end
     end

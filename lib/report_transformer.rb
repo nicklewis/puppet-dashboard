@@ -144,3 +144,20 @@ class ReportTransformer::OneToTwo < ReportTransformer::ReportTransformation
     nil
   end
 end
+
+class ReportTransformer::TwoToThree < ReportTransformer::ReportTransformation
+  def self.version
+    3
+  end
+
+  def self.transform(report)
+    resources = report['resource_statuses'].values
+    resources.each do |res|
+      res['pending_count'] = res['events'].count {|e| e['status'] == 'noop'}
+    end
+    report['pending_count']   = resources.count {|res| !res['failed'] and res['pending_count'] > 0}
+    report['compliant_count'] = resources.count {|res| !res['failed'] and res['pending_count'] == 0}
+    report['failed_count']    = resources.count {|res| res['failed']}
+    report
+  end
+end

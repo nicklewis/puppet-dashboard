@@ -28,7 +28,8 @@ namespace :reports do
         puts "Sample reports already present in #{report_dir}; these may cause conflicts when importing into the database"
       end
 
-      num_nodes.times do
+      num_nodes.times do |n|
+        puts n
         options[:hostname] = DataGenerator.generate_hostname
         num_reports.times do |i|
           options[:time_offset] = i

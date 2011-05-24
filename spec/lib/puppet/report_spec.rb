@@ -448,4 +448,18 @@ HEREDOC
       end
     end
   end
+
+  describe "for a format 3 report" do
+    before :each do
+      @report = YAML.load_file(Rails.root.join('spec', 'fixtures', 'report', 'version3', 'example.yaml'))
+      @report.extend(ReportExtensions)
+    end
+
+    it "should include pending_count" do
+      hash = @report.to_hash
+      hash.should be_a(Hash)
+      hash["pending_count"].should == 1
+      hash["resource_statuses"]["File[/tmp/noop]"]["pending_count"].should == 1
+    end
+  end
 end
