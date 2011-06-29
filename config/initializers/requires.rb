@@ -5,3 +5,5 @@ require "#{RAILS_ROOT}/lib/has_parameters"
 require "#{RAILS_ROOT}/lib/active_model_scopes"
 require "#{RAILS_ROOT}/lib/puppet/report"
 require "#{RAILS_ROOT}/lib/csv_extensions"
+
+require 'ar-extensions/import/mysql'

@@ -17,6 +17,7 @@ Rails::Initializer.run do |config|
   config.gem 'sass'
   config.gem 'will_paginate'
   config.gem 'daemons', :version => '1.0.10'
+  config.gem 'ar-extensions'
 
   # Settings in config/environments/* take precedence over those specified here.
   # Application configuration should go into files in config/initializers

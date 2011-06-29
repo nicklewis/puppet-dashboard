@@ -113,9 +113,31 @@ class Report < ActiveRecord::Base
 
     report_hash["resource_statuses"] = report_hash["resource_statuses"].values
 
-    report = Report.new(Report.attribute_hash_from(report_hash)).munge
-    report.save!
-    report
+    report_hash = Report.attribute_hash_from(report_hash)
+    report_hash.delete('logs_attributes')
+    report_hash.delete('metrics_attributes')
+    res_hashes = report_hash.delete('resource_statuses_attributes')
+
+    ActiveRecord::Base.transaction do
+      report = Report.create!(report_hash)
+      reses = []
+      events_by_resource = {}
+      res_hashes.each do |res_hash|
+        events_by_resource[[res_hash['resource_type'], res_hash['title']]] = res_hash.delete('events_attributes')
+      end
+      reses = res_hashes.map {|res_hash| res_hash.merge("report_id" => report.id).sort}
+      ResourceStatus.import(reses.first.map(&:first), reses.map{|r| r.map(&:last)})
+
+      report.reload
+
+      events = report.resource_statuses.map do |res|
+        events_by_resource[[res.resource_type, res.title]].map{|ev_hash| ev_hash.merge("resource_status_id" => res.id).sort}
+      end.inject(&:+)
+
+      ResourceEvent.import(events.first.map(&:first), events.map{|e| e.map(&:last)})
+
+      report
+    end
   end
 
   def assign_to_node
